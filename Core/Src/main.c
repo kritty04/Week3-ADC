@@ -102,6 +102,7 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 ADCPollingMethodInit();
+int run =0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
