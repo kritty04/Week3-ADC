@@ -45,6 +45,10 @@ ADC_HandleTypeDef hadc1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+float ADCOutputConverted = 0;
+GPIO_PinState SwitchState1[2]={0} ;
+uint8_t ADCMode = 0 ;
+uint32_t timestamp =0 ;
 typedef struct
 {
 	ADC_ChannelConfTypeDef Config;
@@ -102,15 +106,35 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 ADCPollingMethodInit();
-int run =0;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
 	  //read analog
 	  ADCPollingMethodUpdate();
+	  if (HAL_GetTick()-timestamp>=50)
+	  {
+		  timestamp=HAL_GetTick();
+	  SwitchState1[0]= HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9);
+		  if (SwitchState1[0]== 0 && SwitchState1[1]==1)
+		  {
+			  	ADCMode=ADCMode^1;
+		  }
+	  }
+	  switch(ADCMode)
+	  {
+	  case 1:
+		  ADCOutputConverted = (((ADCChannel[2].Data*3.3/4096.0)-0.76)/0.0025)+25;
+		  break;
+	  case 0:
+		  ADCOutputConverted = (ADCChannel[0].Data*3.3)/4096.0*1000.0;
+		  break;
+	  }
+	  SwitchState1[1]=SwitchState1[0];
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
